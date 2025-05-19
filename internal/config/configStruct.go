@@ -13,28 +13,28 @@ type Config struct {
 
 func (c *Config) SetUser(user string) error { //Need pointer to actualy change struct
 	if user == "" {
-		return errors.New("No user specified")
+		return errors.New("no user specified")
 	}
 	c.Current_user_name = user
-	err := write(*c) //could reduce to "return write(*c)""
-	if err != nil {
-		return err
-	}
-	return nil
+	//this will write the new information to the file on disk
+	return write(*c)
 }
 
 func write(cfg Config) error {
+	//convert struct to json
 	jsonData, err := json.Marshal(cfg)
 	if err != nil {
-		return errors.New("Error marshaling JSON")
+		return errors.New("error marshaling JSON")
 	}
+	//get filepath that json will be written to
 	path, err := getConfigFilePath()
 	if err != nil {
-		return errors.New("Error getting filepath for writing")
+		return errors.New("error getting filepath for writing")
 	}
+	//WriteFile opens and closes file automatically, 0644 will allow others to read file
 	err = os.WriteFile(path, jsonData, 0644)
 	if err != nil {
-		return errors.New("Couldn't write file")
+		return errors.New("couldn't write file")
 	}
 	return nil
 }
