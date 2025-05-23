@@ -3,18 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
-
-	"github.com/reiffle/gator/internal/config"
 )
 
-type state struct {
-	//cfg has Current_user_name and DbURL fields
-	//use a pointer to change the state of the underlying Config
-	//will scale to have more than just a cfg file
-	cfg *config.Config
-}
-
-// this will be used to all and build functions
+// this will be used to add and build functions
 type command struct {
 	command_name string
 	args         []string
