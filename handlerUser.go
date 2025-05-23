@@ -57,6 +57,19 @@ func handlerLogin(s *state, cmd command) error {
 	fmt.Printf("user '%s' has been set\n", name)
 	return nil
 }
+
+func handlerReset(s *state, cmd command) error {
+
+	//reset the database
+	err := s.db.ResetUsers(context.Background())
+	if err != nil {
+		fmt.Println("couldn't reset table")
+		return err
+	}
+	fmt.Println("table has been reset")
+	return nil
+}
+
 func printUser(user database.User) {
 	fmt.Printf("User ID:	%v\n", user.ID)
 	fmt.Printf("User Name:	%v\n", user.Name)

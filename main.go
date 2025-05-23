@@ -48,6 +48,7 @@ func main() {
 	//populate the new commands variable
 	commands.register("login", handlerLogin)
 	commands.register("register", handlerRegister)
+	commands.register("reset", handlerReset)
 
 	if len(os.Args) < 2 { //check to make sure that the user put in a command name
 		fmt.Println("need command name")

@@ -11,7 +11,7 @@ type Config struct {
 	Current_user_name string `json:"current_user_name"`
 }
 
-func (c *Config) SetUser(user string) error { //Need pointer to actualy change struct
+func (c *Config) SetUser(user string) error { //Need pointer to actually change struct
 	if user == "" {
 		return errors.New("no user specified")
 	}
