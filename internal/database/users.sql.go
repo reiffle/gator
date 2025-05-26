@@ -65,6 +65,39 @@ func (q *Queries) GetUser(ctx context.Context, name string) (User, error) {
 	return i, err
 }
 
+const getUsers = `-- name: GetUsers :many
+
+SELECT
+CASE
+    WHEN name=$1 THEN '* '||name||' (current)'
+    ELSE '* '||name
+END
+FROM users
+`
+
+func (q *Queries) GetUsers(ctx context.Context, name string) ([]interface{}, error) {
+	rows, err := q.db.QueryContext(ctx, getUsers, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []interface{}
+	for rows.Next() {
+		var column_1 interface{}
+		if err := rows.Scan(&column_1); err != nil {
+			return nil, err
+		}
+		items = append(items, column_1)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const resetUsers = `-- name: ResetUsers :exec
 
 DELETE FROM users

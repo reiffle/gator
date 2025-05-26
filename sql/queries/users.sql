@@ -16,3 +16,12 @@ where name=$1;
 -- name: ResetUsers :exec
 
 DELETE FROM users;
+
+-- name: GetUsers :many
+
+SELECT
+CASE
+    WHEN name=$1 THEN '* '||name||' (current)'
+    ELSE '* '||name
+END
+FROM users;
