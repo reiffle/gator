@@ -50,6 +50,7 @@ func main() {
 	commands.register("register", handlerRegister)
 	commands.register("reset", handlerReset)
 	commands.register("users", handlerPrintUsers)
+	commands.register("agg", handlerFetchFeed)
 
 	if len(os.Args) < 2 { //check to make sure that the user put in a command name
 		fmt.Println("need command name")
