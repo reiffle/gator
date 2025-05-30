@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
@@ -56,96 +55,5 @@ func handlerLogin(s *state, cmd command) error {
 		return err
 	}
 	fmt.Printf("user '%s' has been set\n", name)
-	return nil
-}
-
-func handlerReset(s *state, cmd command) error {
-
-	//reset the database
-	err := s.db.ResetUsers(context.Background())
-	if err != nil {
-		fmt.Println("couldn't reset table")
-		return err
-	}
-	fmt.Println("table has been reset")
-	return nil
-}
-
-func handlerPrintUsers(s *state, cmd command) error {
-
-	//print users in database
-	name := s.cfg.Current_user_name
-	users, err := s.db.GetUsers(context.Background(), name)
-	if err != nil {
-		fmt.Println("couldn't print users")
-		return err
-	}
-	for _, user := range users {
-		fmt.Println(user)
-	}
-	return nil
-}
-
-func printUser(user database.User) {
-	fmt.Printf("User ID:	%v\n", user.ID)
-	fmt.Printf("User Name:	%v\n", user.Name)
-}
-
-func handlerFetchFeed(s *state, cmd command) error {
-
-	//Get aggregation
-	URL := "https://www.wagslane.dev/index.xml"
-	feed, err := fetchFeed(context.Background(), URL)
-	if err != nil {
-		fmt.Println("couldn't fetch aggregations")
-		return nil
-	}
-	fmt.Printf("%+v\n", feed) //%+v\n prints structs nicely
-	return nil
-}
-
-func handlerAddFeed(s *state, cmd command) error {
-	if len(cmd.args) != 2 {
-		fmt.Println("must include feed name and url")
-		os.Exit(1)
-	}
-	curr_name := s.cfg.Current_user_name
-	if len(curr_name) == 0 {
-		fmt.Println("no current user")
-		os.Exit(1)
-	}
-	curr_user, err := s.db.GetUser(context.Background(), curr_name)
-	if err != nil {
-		fmt.Println("current user not in database")
-		os.Exit(1)
-		return err
-	}
-
-	curr_user_id := curr_user.ID
-	name := cmd.args[0]
-	url := cmd.args[1]
-	feed_params := database.CreateFeedParams{
-		ID:        uuid.New(),
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-		Name:      name,
-		Url:       url,
-		UserID:    curr_user_id,
-	}
-
-	feed, err := s.db.CreateFeed(context.Background(), feed_params)
-	if err != nil {
-		fmt.Println("Error creating feed", err)
-		os.Exit(1)
-		return err
-	}
-
-	fmt.Printf("ID:		%s\n", feed.ID)
-	fmt.Printf("Created At:	%v\n", feed.CreatedAt)
-	fmt.Printf("Updated At:	%v\n", feed.UpdatedAt)
-	fmt.Printf("Name:		%s\n", feed.Name)
-	fmt.Printf("URL:		%s\n", feed.Url)
-	fmt.Printf("UserID:		%s\n", feed.UserID)
-
 	return nil
 }

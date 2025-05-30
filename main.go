@@ -52,6 +52,7 @@ func main() {
 	commands.register("users", handlerPrintUsers)
 	commands.register("agg", handlerFetchFeed)
 	commands.register("addfeed", handlerAddFeed)
+	commands.register("feeds", handlerFeeds)
 
 	if len(os.Args) < 2 { //check to make sure that the user put in a command name
 		fmt.Println("need command name")
