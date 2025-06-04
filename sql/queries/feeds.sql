@@ -11,7 +11,6 @@ VALUES (
 RETURNING *;
 
 -- name: PrintFeeds :many
-
 SELECT feeds.name, feeds.url, users.name
 FROM feeds
 INNER JOIN users on users.id = feeds.user_id;
