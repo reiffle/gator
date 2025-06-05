@@ -10,7 +10,7 @@ import (
 	"github.com/reiffle/gator/internal/database"
 )
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 2 {
 		fmt.Println("must include feed name and url")
 		os.Exit(1)
@@ -20,14 +20,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		fmt.Println("no current user")
 		os.Exit(1)
 	}
-	curr_user, err := s.db.GetUser(context.Background(), curr_name)
-	if err != nil {
-		fmt.Println("current user not in database")
-		os.Exit(1)
-		return err
-	}
 
-	curr_user_id := curr_user.ID
 	name := cmd.args[0]
 	url := cmd.args[1]
 	feed_params := database.CreateFeedParams{
@@ -36,7 +29,7 @@ func handlerAddFeed(s *state, cmd command) error {
 		UpdatedAt: time.Now().UTC(),
 		Name:      name,
 		Url:       url,
-		UserID:    curr_user_id,
+		UserID:    user.ID,
 	}
 
 	feed, err := s.db.CreateFeed(context.Background(), feed_params)

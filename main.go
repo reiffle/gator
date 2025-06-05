@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -51,10 +52,11 @@ func main() {
 	commands.register("reset", handlerReset)
 	commands.register("users", handlerPrintUsers)
 	commands.register("agg", handlerFetchFeed)
-	commands.register("addfeed", handlerAddFeed)
+	commands.register("addfeed", middlewareLoggedIn(handlerAddFeed))
 	commands.register("feeds", handlerFeeds)
-	commands.register("follow", handlerFeedFollow)
-	commands.register("following", handlerFollowing)
+	commands.register("follow", middlewareLoggedIn(handlerFeedFollow))
+	commands.register("following", middlewareLoggedIn(handlerFollowing))
+	commands.register("unfollow", middlewareLoggedIn(handlerUnfollow))
 
 	if len(os.Args) < 2 { //check to make sure that the user put in a command name
 		fmt.Println("need command name")
@@ -68,4 +70,15 @@ func main() {
 		os.Exit(1)
 	}
 	os.Exit(0)
+}
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error { //we are actually returning middlewareLoggedIn, not the inner function anymore
+		curr_user, err := s.db.GetUser(context.Background(), s.cfg.Current_user_name)
+		if err != nil {
+			return err
+		}
+
+		return handler(s, cmd, curr_user) //we are running a command
+	}
 }

@@ -4,17 +4,18 @@ import (
 	"context"
 	"fmt"
 	"os"
+
+	"github.com/reiffle/gator/internal/database"
 )
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, user database.User) error {
 	if len(cmd.args) != 0 {
 		fmt.Println("This function doesn't take any parameters")
 		os.Exit(1)
 		return nil
 	}
 
-	user := s.cfg.Current_user_name
-	feed_follows, err := s.db.GetFeedFollowsForUser(context.Background(), user)
+	feed_follows, err := s.db.GetFeedFollowsForUser(context.Background(), user.Name)
 	if err != nil {
 		fmt.Println("No follows for current user")
 		os.Exit(1)
