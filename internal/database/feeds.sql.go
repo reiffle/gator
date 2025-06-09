@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,7 +23,7 @@ VALUES (
     $5,
     $6
 )
-RETURNING id, created_at, updated_at, name, url, user_id
+RETURNING id, created_at, updated_at, name, url, user_id, last_fetched_at
 `
 
 type CreateFeedParams struct {
@@ -51,8 +52,69 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 		&i.Name,
 		&i.Url,
 		&i.UserID,
+		&i.LastFetchedAt,
 	)
 	return i, err
+}
+
+const getNextFeedToFetch = `-- name: GetNextFeedToFetch :one
+SELECT feeds.id, feeds.created_at, feeds.updated_at, name, url, feeds.user_id, last_fetched_at, feed_follows.id, feed_follows.created_at, feed_follows.updated_at, feed_follows.user_id, feed_id
+FROM feeds
+INNER JOIN feed_follows on feed_follows.feed_id = feeds.id
+WHERE feed_follows.user_id = $1
+ORDER BY feeds.last_fetched_at NULLS FIRST
+LIMIT 1
+`
+
+type GetNextFeedToFetchRow struct {
+	ID            uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	Name          string
+	Url           string
+	UserID        uuid.UUID
+	LastFetchedAt sql.NullTime
+	ID_2          uuid.UUID
+	CreatedAt_2   time.Time
+	UpdatedAt_2   time.Time
+	UserID_2      uuid.UUID
+	FeedID        uuid.UUID
+}
+
+func (q *Queries) GetNextFeedToFetch(ctx context.Context, userID uuid.UUID) (GetNextFeedToFetchRow, error) {
+	row := q.db.QueryRowContext(ctx, getNextFeedToFetch, userID)
+	var i GetNextFeedToFetchRow
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Name,
+		&i.Url,
+		&i.UserID,
+		&i.LastFetchedAt,
+		&i.ID_2,
+		&i.CreatedAt_2,
+		&i.UpdatedAt_2,
+		&i.UserID_2,
+		&i.FeedID,
+	)
+	return i, err
+}
+
+const markFeedsFetched = `-- name: MarkFeedsFetched :exec
+UPDATE feeds
+SET updated_at = $1, last_fetched_at = $1
+WHERE id = $2
+`
+
+type MarkFeedsFetchedParams struct {
+	UpdatedAt time.Time
+	ID        uuid.UUID
+}
+
+func (q *Queries) MarkFeedsFetched(ctx context.Context, arg MarkFeedsFetchedParams) error {
+	_, err := q.db.ExecContext(ctx, markFeedsFetched, arg.UpdatedAt, arg.ID)
+	return err
 }
 
 const printFeeds = `-- name: PrintFeeds :many

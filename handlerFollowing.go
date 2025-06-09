@@ -21,7 +21,7 @@ func handlerFollowing(s *state, cmd command, user database.User) error {
 		os.Exit(1)
 		return nil
 	}
-	fmt.Printf("%s is following\n\n", user)
+	fmt.Printf("%s is following\n\n", user.Name)
 	if len(feed_follows) == 0 {
 		fmt.Println("NONE")
 		return nil

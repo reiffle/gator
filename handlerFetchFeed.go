@@ -5,15 +5,20 @@ import (
 	"fmt"
 )
 
-func handlerFetchFeed(s *state, cmd command) error {
+func handlerFetchFeed(s *state, cmd command, URL string) error {
 
-	//Get aggregation
-	URL := "https://www.wagslane.dev/index.xml"
+	//Get feed
 	feed, err := fetchFeed(context.Background(), URL)
 	if err != nil {
-		fmt.Println("couldn't fetch aggregations")
+		fmt.Println("couldn't fetch feed")
 		return nil
 	}
-	fmt.Printf("%+v\n", feed) //%+v\n prints structs nicely
+	fmt.Println(feed.Channel.Title)
+	fmt.Printf("\n")
+	fmt.Println("---------------------------")
+	for _, x := range feed.Channel.Item {
+		fmt.Println("* ", x.Title) //Print rss titles
+	}
+	fmt.Printf("\n")
 	return nil
 }
