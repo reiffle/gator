@@ -57,6 +57,7 @@ func main() {
 	commands.register("follow", middlewareLoggedIn(handlerFeedFollow))
 	commands.register("following", middlewareLoggedIn(handlerFollowing))
 	commands.register("unfollow", middlewareLoggedIn(handlerUnfollow))
+	commands.register("browse", middlewareLoggedIn(handlerBrowse))
 
 	if len(os.Args) < 2 { //check to make sure that the user put in a command name
 		fmt.Println("need command name")

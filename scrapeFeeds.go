@@ -10,7 +10,7 @@ import (
 )
 
 func scrapeFeeds(s *state, cmd command) error {
-	if len(cmd.args) != 1 {
+	if len(cmd.args) == 0 {
 		fmt.Printf("command needs a unit of time")
 		os.Exit(1)
 		return nil
@@ -53,7 +53,7 @@ func scrapeFeeds(s *state, cmd command) error {
 			return nil
 		}
 
-		err = handlerFetchFeed(s, cmd, next_feed.Url)
+		err = handlerFetchFeed(s, cmd, next_feed.Url, next_feed.ID)
 		if err != nil {
 			fmt.Printf("Couldn't fetch feed from %s\n", next_feed.Url)
 			os.Exit(1)
